@@ -1,6 +1,6 @@
 namespace employee.data;
 
-using {reusable.types } from './reusabletypes';
+using {reusable.types} from './reusabletypes';
 
 using {
   cuid,
@@ -18,6 +18,7 @@ entity Employee : cuid, managed {
   fName           : String;
   lName           : String;
   gender          : String;
+  Age             : Integer;
   DOB             : Date;
   contractStarted : Date;
   email           : types.Email not null;
