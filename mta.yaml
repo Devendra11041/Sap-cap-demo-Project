@@ -1,0 +1,94 @@
+_schema-version: "3.1"
+ID: approuter_project_m
+description: A simple CAP project.
+version: 1.0.0
+modules:
+- name: approuter_project_m-srv
+  type: nodejs
+  path: gen/srv
+  requires:
+  - name: uaa_approuter_project_m
+  - name: approuter_project_m-db
+  provides:
+  - name: srv-api
+    properties:
+      srv-url: ${default-url}
+  parameters:
+    buildpack: nodejs_buildpack
+    readiness-health-check-http-endpoint: /health
+    readiness-health-check-type: http
+  build-parameters:
+    builder: npm
+- name: approuter_project_m-db-deployer
+  type: hdb
+  path: gen/db
+  requires:
+  - name: approuter_project_m-db
+  parameters:
+    buildpack: nodejs_buildpack
+- name: approuter_project_m-destination-content
+  type: com.sap.application.content
+  requires:
+  - name: approuter_project_m-destination-service
+    parameters:
+      content-target: true
+  - name: approuter_project_m_html_repo_host
+    parameters:
+      service-key:
+        name: approuter_project_m_html_repo_host-key
+  - name: uaa_approuter_project_m
+    parameters:
+      service-key:
+        name: uaa_approuter_project_m-key
+  parameters:
+    content:
+      instance:
+        destinations:
+        - Name: approuter_approuter_project_m_html_repo_host
+          ServiceInstanceName: approuter_project_m-html5-app-host-service
+          ServiceKeyName: approuter_project_m_html_repo_host-key
+          sap.cloud.service: approuter
+        - Authentication: OAuth2UserTokenExchange
+          Name: approuter_uaa_approuter_project_m
+          ServiceInstanceName: approuter_project_m-xsuaa-service
+          ServiceKeyName: uaa_approuter_project_m-key
+          sap.cloud.service: approuter
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+resources:
+- name: approuter_project_m-db
+  type: com.sap.xs.hdi-container
+  parameters:
+    service: hana
+    service-plan: hdi-shared
+- name: approuter_project_m-destination-service
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      version: 1.0.0
+    service: destination
+    service-name: approuter_project_m-destination-service
+    service-plan: lite
+- name: approuter_project_m_html_repo_host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: approuter_project_m-html5-app-host-service
+    service-plan: app-host
+- name: uaa_approuter_project_m
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: approuter_project_m-xsuaa-service
+    service-plan: application
+parameters:
+  enable-parallel-deployments: true
+build-parameters:
+  before-all:
+  - builder: custom
+    commands:
+    - npm ci
+    - npx cds build --production
