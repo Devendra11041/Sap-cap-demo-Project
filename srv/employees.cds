@@ -3,6 +3,10 @@ using employee.data as db from '../db/employee';
 @path: '/EmployeeServices'
 
 service EmployeeService {
+        @restrict: [{
+        grant: '*',
+        to   : 'Admin'
+    }]
     entity Employee    as projection on db.Employee;
     entity Address as projection on db.Address;
     entity Department as projection on db.Department;

@@ -1,12 +1,19 @@
 {
   "xsappname": "sap-demo-project-xs-app",
   "tenant-mode": "dedicated",
-  "scopes": [],
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Admin",
+      "description": "Admin"
+    }
+  ],
   "attributes": [],
   "role-templates": [],
   "role-collections": [],
   "oauth2-configuration": {
     "token-validity": 3600,
-    "redirect-uris": ["https://*/**"]
+    "redirect-uris": [
+      "https://*/**"
+    ]
   }
 }
